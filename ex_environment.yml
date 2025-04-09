@@ -1,0 +1,13 @@
+name: my_env
+channels:
+  - rdkit
+  - conda-forge
+dependencies:
+  - python=3.10
+  - rdkit
+  - pandas
+  - scikit-learn
+  - streamlit
+  - mordred
+  - matplotlib
+  - numpy
