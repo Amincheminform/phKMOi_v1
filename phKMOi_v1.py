@@ -10,6 +10,7 @@ from mordred import Calculator, descriptors
 import matplotlib.pyplot as plt
 from rdkit.Chem import PandasTools
 import numpy as np
+np.bool = bool
 from io import BytesIO
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 import shap
