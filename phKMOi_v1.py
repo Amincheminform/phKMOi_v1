@@ -132,9 +132,12 @@ if smiles_input:
         external_descriptor_df = descriptor_df[descriptor_columns].fillna(0)
         external_descriptor_df.replace([np.inf, -np.inf], 0, inplace=True)
         external_descriptor_df = external_descriptor_df.astype(float)
+        
         X_external = external_descriptor_df
+        X_external_np = X_external.to_numpy(dtype=np.float64)
 
-        y_external_pred = model.predict(X_external)
+
+        y_external_pred = model.predict(X_external_np)
 
         with st.spinner("Calculating SHAP values..."):
             explainer = shap.TreeExplainer(model)
