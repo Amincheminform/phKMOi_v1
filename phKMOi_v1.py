@@ -130,6 +130,8 @@ if smiles_input:
         descriptor_df = calc.pandas(molecules)
         #external_descriptor_df = descriptor_df[descriptor_columns].dropna()
         external_descriptor_df = descriptor_df[descriptor_columns].fillna(0)
+        external_descriptor_df.replace([np.inf, -np.inf], 0, inplace=True)
+        external_descriptor_df = external_descriptor_df.astype(float)
         X_external = external_descriptor_df
 
         y_external_pred = model.predict(X_external)
