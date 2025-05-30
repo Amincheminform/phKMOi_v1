@@ -38,7 +38,7 @@ PandasTools.AddMoleculeColumnToFrame(test_data, 'Smiles', 'Molecule')
 logo_url = "https://raw.githubusercontent.com/Amincheminform/phKMOi_v1/main/phKMOi_v1_logo.jpg"
 
 st.set_page_config(
-    page_title="phKMOi_v1: predictor of hKMO inhibitor",
+    page_title="phKMOi_v1.0: predictor of hKMO inhibitor",
     layout="wide",
     page_icon=logo_url
 )
@@ -81,15 +81,22 @@ def mol_to_array(mol, size=(300, 300)):
 
 def get_ecfp4(smiles):
     mol = Chem.MolFromSmiles(smiles)
-    return AllChem.GetMorganFingerprintAsBitVect(mol, 2, nBits=2048)
+    if mol is None:
+        raise ValueError(f"Invalid SMILES string: {smiles}")
+    fp = Chem.RDKFingerprint(mol)
+    return fp
 
-st.title("phKMOi_v1: predictor of human KMO inhibitor(s)")
+st.title("phKMOi_v1.0: predictor of human KMO inhibitor(s)")
 
-with st.expander("What is phKMOi_v1?", expanded=True):
-    st.write('''*phKMOi_v1* is a tool to predict inhibitor(s) of human kynurenine 3-monooxygenase (KMO) enzyme. 
+with st.expander("What is phKMOi_v1.0?", expanded=True):
+    st.write('''*phKMOi_v1.0* is a tool to predict inhibitor(s) of human kynurenine 3-monooxygenase (KMO) enzyme. 
     Kynurenine 3 monooxygenase is a key enzyme in the kynurenine pathway (KP). hKMOi represent a novel therapeutic 
     approach with broad implications in the treatment of neurodegenerative disease, psychiatric disorders, 
-    acute pancreatitis and immune mediated conditions.''')
+    acute pancreatitis and immune mediated conditions.
+    
+    Example SMILES: CHDI-340246 (Known hKMOi): n1c(cc(nc1)C(=O)O)c1ccc(c(c1)Cl)OC1CC1
+    
+    ''')
 
 smiles_input = st.text_input("Enter the SMILES string of a molecule:")
 
@@ -121,7 +128,8 @@ if smiles_input:
         molecules = [Chem.MolFromSmiles(sm) for sm in smiles_list]
 
         descriptor_df = calc.pandas(molecules)
-        external_descriptor_df = descriptor_df[descriptor_columns].dropna()
+        #external_descriptor_df = descriptor_df[descriptor_columns].dropna()
+        external_descriptor_df = descriptor_df[descriptor_columns].fillna(0)
         X_external = external_descriptor_df
 
         y_external_pred = model.predict(X_external)
@@ -149,6 +157,8 @@ if smiles_input:
             st.pyplot(fig1)
             mol_img = mol_to_array(molecules[0])
             st.image(mol_img, caption="Query Molecule", width=250)
+            #st.markdown("**Query Molecule**")
+            #st.image(mol_img, width=250)
 
         with col2:
             # SHAP plot for most similar molecule
@@ -158,6 +168,8 @@ if smiles_input:
             st.pyplot(fig2)
             similar_mol_img = mol_to_array(molecules[1])
             st.image(similar_mol_img, caption=f"Most similar molecule\nTanimoto similarity: {most_similar['Tanimoto']:.2f}", width=250)
+            #st.markdown("**Most similar molecule\nTanimoto similarity**: {**most_similar**[**'Tanimoto'**]:.2f}")
+            #st.image(similar_mol_img, width=250)
 
         with col3:
             # SHAP plot for most active molecule
@@ -167,6 +179,8 @@ if smiles_input:
             st.pyplot(fig3)
             active_mol_img = mol_to_array(molecules[2])
             st.image(active_mol_img, caption="Most active molecule", width=250)
+            #st.markdown("**Most active molecule**")
+            #st.image(active_mol_img, width=250)
 
 else:
     st.info("Please enter a SMILES string to get predictions.")
